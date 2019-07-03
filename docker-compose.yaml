@@ -1,0 +1,37 @@
+version: '3'
+services:
+  laravel_server:
+    container_name: laravel_server
+    build:
+      context: Dockerfiles # Dockerfileがあるディレクトリへのパス
+      dockerfile: apache_Dockerfile #Dockerfileのファイル名
+    # tty: true #バックグラウンドで実行しっぱなしにする
+    volumes:
+      - ./src:/var/www/project
+    ports: #公開するポート設定 ホスト:コンテナ内
+      - "80:80"
+      - "443:443"
+  laravel:
+    container_name: laravel
+    build:
+      context: Dockerfiles # Dockerfileがあるディレクトリへのパス
+      dockerfile: laravel_Dockerfile #Dockerfileのファイル名
+    # tty: true #バックグラウンドで実行しっぱなしにする
+    volumes:
+      - ./src:/home/project
+    ports: #公開するポート設定 ホスト:コンテナ内
+      - "8000:8000"
+    depends_on:
+      - laravel_db
+  laravel_db:
+    container_name: laravel_db
+    restart: always
+    image: mysql:latest
+    volumes:
+      - ./database/mysql:/var/lib/mysql #DB永続化
+      - ./database/initdb:/docker-entrypoint-initdb.d #初期データ設定用SQL
+    environment:
+      - MYSQL_ROOT_PASSWORD=password      #rootのパスワード
+      - MYSQL_DATABASE=project_database   #データベースの作成
+      - MYSQL_USER=admin                  #ユーザの作成
+      - MYSQL_PASSWORD=password           #ユーザのパスワード

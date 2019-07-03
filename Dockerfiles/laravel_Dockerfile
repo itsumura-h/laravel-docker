@@ -1,0 +1,15 @@
+FROM php:7.2-fpm
+
+# Debian,Ubuntuの時のパッケージを更新する設定
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y git
+
+# composerインストール
+WORKDIR /tmp
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer
+
+WORKDIR /home/project
+RUN composer install && \
+    php artisan key:generate
